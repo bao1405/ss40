@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management</title>
+  <style>
+    #userList {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div>
+  <label for="userName"></label>
+  <input type="text" id="userName" required placeholder="Nhập tên người dùng">
+
+  <button type="button" onclick="addUser()">thêm</button>
+  <button type="button" onclick="deleteUser()">Xoá</button>
+</div>
+<div id="userList"></div>
+
+<script>
+  function addUser() {
+    let userNameInput = document.getElementById('userName').value;
+
+    if (!userNameInput) {
+      alert('Please enter a user name.');
+      return;
+    }
+    let userId = userNameInput.toLowerCase().replace(/\s/g, '_');
+    let user = { name: userNameInput };
+    localStorage.setItem(userId, JSON.stringify(user));
+    displayUsers();
+  }
+
+  function deleteUser() {
+    let userNameToDelete = document.getElementById('userName').value;
+
+    if (!userNameToDelete) {
+      alert('Please enter a user name to delete.');
+      return;
+    }
+    let userIdToDelete = userNameToDelete.toLowerCase().replace(/\s/g, '_');
+
+    if (localStorage.getItem(userIdToDelete)) {
+      localStorage.removeItem(userIdToDelete);
+      displayUsers();
+    } else {
+      alert('User with the given name not found.');
+    }
+  }
+
+  function displayUsers() {
+    let userListDiv = document.getElementById('userList');
+    userListDiv.innerHTML = '';
+
+    for (let i = 0; i < localStorage.length; i++) {
+      let userId = localStorage.key(i);
+      let userData = JSON.parse(localStorage.getItem(userId));
+
+      let userInfo = document.createElement('p');
+      userInfo.textContent = "Name: " + userData.name;
+      userListDiv.appendChild(userInfo);
+    }
+  }
+
+  displayUsers();
+</script>
+
+</body>
+</html>

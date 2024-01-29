@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Login Form</title>
+  <style>
+    form {
+      max-width: 300px;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+    <form id="loginForm">
+    <label for="loginUsername">Username or Email:</label>
+    <input type="text" id="loginUsername" required>
+    <br>
+    <label for="loginPassword">Password:</label><br>
+    <input type="password" id="loginPassword" required>
+    <br>
+    <button type="button" onclick="loginUser()">Login</button>
+    </form>
+
+<script>
+  function loginUser() {
+    let loginUsernameInput = document.getElementById('loginUsername').value;
+    let loginPasswordInput = document.getElementById('loginPassword').value;
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    let user = users.find(u => (u.username === loginUsernameInput || u.email === loginUsernameInput) && u.password === loginPasswordInput);
+    if (user) {
+      sessionStorage.setItem('loggedInUser', JSON.stringify(user));
+
+      alert('Login successful! Welcome, ' + user.username);
+    } else {
+      alert('Incorrect username/email or password. Please try again.');
+    }
+  }
+</script>
+
+</body>
+</html>

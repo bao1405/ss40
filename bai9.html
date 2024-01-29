@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Management</title>
+  <style>
+    #productListTable {
+      margin-top: 20px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    #productListTable th, #productListTable td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    #productListTable th {
+      background-color: #f2f2f2;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    input, button {
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Product Management</h2>
+  <input type="text" id="productName" placeholder="Tên Sản Phẩm">
+  <input type="number" id="productPrice" placeholder="Giá sản phẩm">
+  <button id="addOrUpdateBtn" onclick="addOrUpdateProduct()">Thêm một sản phẩm</button><br>
+  <input type="text" id="searchInput" oninput="searchProducts()" style="width: 490px;" placeholder="Tìm sản phẩm theo tên...">
+  <table id="productListTable">
+    <thead>
+      <tr>
+        <th>STT</th>
+        <th>Product Name</th>
+        <th>Product Price</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="productList"></tbody>
+  </table>
+
+  <script>
+    let originalProductList = [];
+
+    function addOrUpdateProduct() {
+      let productNameInput = document.getElementById('productName');
+      let productPriceInput = document.getElementById('productPrice');
+      let addOrUpdateBtn = document.getElementById('addOrUpdateBtn');
+
+      let productName = productNameInput.value.trim();
+      let productPrice = parseFloat(productPriceInput.value);
+
+      if (!productName || isNaN(productPrice) || productPrice <= 0) {
+        alert('Please enter valid product information.');
+        return;
+      }
+
+      let productList = getProductsFromLocalStorage();
+
+      let editIndex = addOrUpdateBtn.dataset.editIndex;
+
+      if (editIndex !== undefined) {
+        productList[editIndex].name = productName;
+        productList[editIndex].price = productPrice;
+        clearInputs();
+        addOrUpdateBtn.textContent = 'Add Product';
+        delete addOrUpdateBtn.dataset.editIndex;
+      } else {
+        let product = { name: productName, price: productPrice };
+        productList.push(product);
+        clearInputs();
+      }
+
+      originalProductList = productList.slice();
+      saveProductsToLocalStorage(productList);
+      displayProducts(productList);
+    }
+
+    function deleteProduct(index) {
+      let productList = getProductsFromLocalStorage();
+      productList.splice(index, 1);
+      originalProductList = productList.slice();
+      saveProductsToLocalStorage(productList);
+      displayProducts(productList);
+    }
+
+    function editProduct(index) {
+      let productList = getProductsFromLocalStorage();
+      let product = productList[index];
+
+      document.getElementById('productName').value = product.name;
+      document.getElementById('productPrice').value = product.price;
+
+      document.getElementById('addOrUpdateBtn').textContent = 'Update Product';
+      document.getElementById('addOrUpdateBtn').dataset.editIndex = index;
+    }
+
+    function displayProducts(productList) {
+      let productListUl = document.getElementById('productList');
+      productListUl.innerHTML = '';
+
+      productList.forEach((product, index) => {
+        let listItem = document.createElement('li');
+
+        let sttSpan = document.createElement('span');
+        sttSpan.textContent = index + 1;
+        sttSpan.style.marginRight = '10px';
+        listItem.appendChild(sttSpan);
+
+        let nameSpan = document.createElement('span');
+        nameSpan.textContent = `${product.name} - `;
+        nameSpan.style.marginRight = '10px';
+        listItem.appendChild(nameSpan);
+
+        let priceSpan = document.createElement('span');
+        priceSpan.textContent = `$${product.price.toFixed(2)}`;
+        priceSpan.style.marginRight = '10px';
+        listItem.appendChild(priceSpan);
+
+        let editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.onclick = function () {
+          editProduct(index);
+        };
+
+        let deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = function () {
+          deleteProduct(index);
+        };
+
+        listItem.appendChild(editButton);
+        listItem.appendChild(deleteButton);
+
+        productListUl.appendChild(listItem);
+      });
+
+      let productListTable = document.getElementById('productListTable');
+      productListTable.innerHTML = '';
+      let theadRow = document.createElement('tr');
+      let thStt = document.createElement('th');
+      thStt.textContent = 'STT';
+      theadRow.appendChild(thStt);
+
+      let thName = document.createElement('th');
+      thName.textContent = 'Product Name';
+      theadRow.appendChild(thName);
+
+      let thPrice = document.createElement('th');
+      thPrice.textContent = 'Product Price';
+      theadRow.appendChild(thPrice);
+
+      let thAction = document.createElement('th');
+      thAction.textContent = 'Action';
+      theadRow.appendChild(thAction);
+      productListTable.appendChild(theadRow);
+
+      productList.forEach((product, index) => {
+        let row = document.createElement('tr');
+
+        let sttCell = document.createElement('td');
+        sttCell.textContent = index + 1;
+        row.appendChild(sttCell);
+
+        let nameCell = document.createElement('td');
+        nameCell.textContent = product.name;
+        row.appendChild(nameCell);
+
+        let priceCell = document.createElement('td');
+        priceCell.textContent = `$${product.price.toFixed(2)}`;
+        row.appendChild(priceCell);
+
+        let actionCell = document.createElement('td');
+
+        let editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.onclick = function () {
+          editProduct(index);
+        };
+        actionCell.appendChild(editButton);
+
+        let deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = function () {
+          deleteProduct(index);
+        };
+        actionCell.appendChild(deleteButton);
+
+        row.appendChild(actionCell);
+
+        productListTable.appendChild(row);
+      });
+    }
+
+    function getProductsFromLocalStorage() {
+      let productListString = localStorage.getItem('products');
+      return productListString ? JSON.parse(productListString) : [];
+    }
+
+    function saveProductsToLocalStorage(products) {
+      localStorage.setItem('products', JSON.stringify(products));
+    }
+
+    function clearInputs() {
+      document.getElementById('productName').value = '';
+      document.getElementById('productPrice').value = '';
+    }
+    displayProducts(getProductsFromLocalStorage());
+
+    document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('searchInput').addEventListener('input', searchProducts);
+
+    function searchProducts() {
+        const searchValue = document.getElementById('searchInput').value.toUpperCase();
+        const productList = originalProductList.slice();
+
+        const matchingProducts = productList.filter(product => product.name.toUpperCase().includes(searchValue));
+        const nonMatchingProducts = productList.filter(product => !product.name.toUpperCase().includes(searchValue));
+
+        const filteredProducts = matchingProducts.concat(nonMatchingProducts);
+
+        displayProducts(filteredProducts);
+        }
+    });
+  </script>
+</body>
+</html>

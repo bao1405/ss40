@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo List App</title>
+  <style>
+    #todoList {
+      margin-top: 20px;
+      list-style-type: none;
+      padding: 0;
+    }
+
+    div {
+      background-color: red;
+      color: white;
+      text-align: center;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    input {
+      width: 800px;
+      height: 20px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    button {
+      vertical-align: middle;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    button {
+      order: 2;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h2>My To Do List</h2>
+    <label for="newTodo"></label>
+    <input type="text" id="newTodo" placeholder="Title...">
+    <button type="button" onclick="addTodo()">add</button>
+  </div>
+  <ul id="todoList"></ul>
+
+  <script>
+    function addTodo() {
+      let newTodoInput = document.getElementById('newTodo');
+      let todoList = document.getElementById('todoList');
+
+      let todoText = newTodoInput.value.trim();
+      if (!todoText) return;
+
+      let todoItem = document.createElement('li');
+
+      let todoTextSpan = document.createElement('span');
+      todoTextSpan.textContent = todoText;
+
+      let deleteButton = document.createElement('button');
+      deleteButton.style.background = 'white';
+      deleteButton.style.border = 'white';
+      deleteButton.textContent = 'X';
+      deleteButton.onclick = function() {
+        deleteTodoItem(todoItem);
+      };
+
+      todoItem.appendChild(todoTextSpan);
+      todoItem.appendChild(deleteButton);
+      todoList.appendChild(todoItem);
+
+      saveTodoListToLocalStorage();
+      newTodoInput.value = '';
+    }
+
+    function deleteTodoItem(todoItem) {
+      let todoList = document.getElementById('todoList');
+      todoList.removeChild(todoItem);
+      saveTodoListToLocalStorage();
+    }
+
+    function saveTodoListToLocalStorage() {
+      let todoList = document.getElementById('todoList');
+      let todos = [];
+      for (let i = 0; i < todoList.children.length; i++) {
+        let todoText = todoList.children[i].querySelector('span').textContent;
+        todos.push(todoText);
+      }
+      localStorage.setItem('todos', JSON.stringify(todos));
+    }
+
+    function loadTodoListFromLocalStorage() {
+      let todoList = document.getElementById('todoList');
+      let storedTodos = localStorage.getItem('todos');
+      if (storedTodos) {
+        let todos = JSON.parse(storedTodos);
+        todos.forEach(todoText => {
+          let todoItem = document.createElement('li');
+
+          let todoTextSpan = document.createElement('span');
+          todoTextSpan.textContent = todoText;
+
+          let deleteButton = document.createElement('button');
+          deleteButton.textContent = 'X';
+          deleteButton.onclick = function() {
+            deleteTodoItem(todoItem);
+          };
+
+          todoItem.appendChild(todoTextSpan);
+          todoItem.appendChild(deleteButton);
+          todoList.appendChild(todoItem);
+        });
+      }
+    }
+
+    loadTodoListFromLocalStorage();
+  </script>
+</body>
+</html>

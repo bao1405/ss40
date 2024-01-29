@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Information</title>
+</head>
+<body>
+    <form id="infoForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" required>
+        <br>
+        <label for="age">Age:</label>
+        <input type="number" id="age" required>
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" required>
+        <br>
+        <button type="button" onclick="savePerson()">Save Information</button>
+    </form>
+<div id="displayInfo"></div>
+
+<script>
+    function Person(name, age, email) {
+    this.name = name;
+    this.age = age;
+    this.email = email;
+    }
+    function savePerson() {
+        let nameInput = document.getElementById('name').value;
+        let ageInput = document.getElementById('age').value;
+        let emailInput = document.getElementById('email').value;
+        let newPerson = new Person(nameInput, ageInput, emailInput);
+        savePersonToLocalStorage(newPerson);
+        displayPeopleFromLocalStorage();
+    }
+    function savePersonToLocalStorage(person) {
+        let savedPeople = JSON.parse(localStorage.getItem('people')) || [];
+        savedPeople.push(person);
+        localStorage.setItem('people', JSON.stringify(savedPeople));
+    }
+    function displayPeopleFromLocalStorage() {
+        let displayDiv = document.getElementById('displayInfo');
+        displayDiv.innerHTML ='';
+        let savedPeople = JSON.parse(localStorage.getItem('people')) || [];
+        savedPeople.forEach(person => {
+        let personInfo = document.createElement('p');
+        personInfo.textContent = "Name: " + person.name + ", Age: " + person.age + ", Email: " + person.email;
+        displayDiv.appendChild(personInfo);
+        });
+    }
+    displayPeopleFromLocalStorage();
+</script>
+</body>
+</html>

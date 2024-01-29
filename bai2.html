@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Football Players Management</title>
+  <style>
+    #playerList {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div>
+  <label for="playerName"></label>
+  <input type="text" id="playerName" placeholder="Nhập tên cầu thủ">
+  <button type="button" onclick="addPlayer()">Thêm cầu thủ</button>
+</div>
+<div id="playerList"></div>
+
+<script>
+  function addPlayer() {
+    let playerNameInput = document.getElementById('playerName').value;
+    if (!playerNameInput) {
+      alert('Please enter a player name.');
+      return;
+      }
+    let playerId = Date.now().toString();
+    let player = { id: playerId, name: playerNameInput };
+    localStorage.setItem(playerId, JSON.stringify(player));
+    displayPlayers();
+  }
+  function displayPlayers() {
+    let playerListDiv = document.getElementById('playerList');
+    playerListDiv.innerHTML = ''; 
+    for (let i = 0; i < localStorage.length; i++) {
+      let playerId = localStorage.key(i);
+      let playerData = JSON.parse(localStorage.getItem(playerId));
+      let playerInfo = document.createElement('p');
+      playerInfo.textContent = "ID: " + playerData.id + ", Name: " + playerData.name;
+      playerListDiv.appendChild(playerInfo);
+    }
+  }
+  displayPlayers();
+</script>
+
+</body>
+</html>
